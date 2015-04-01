@@ -1,5 +1,5 @@
 class Length
-  attr_reader :value,:unit
+  attr_accessor :value, :unit
 
   def initialize value, unit="m"
     @value = value
@@ -7,7 +7,20 @@ class Length
   end
 
   def == (another_length)
-    self.value == another_length.value && self.unit == another_length.unit
+
+    return UnitConvert.convertToBaseUnit(self.value, self.unit) == UnitConvert.convertToBaseUnit(another_length.value, another_length.unit)
+
   end
 end
 
+class UnitConvert
+
+  def self.convertToBaseUnit(length, unit)
+    unitMapping = {
+        'cm' => 1,
+        'm' => 100,
+        'km' => 10000
+    }
+    return length * unitMapping[unit]
+  end
+end

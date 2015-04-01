@@ -33,4 +33,20 @@ describe "compare two length" do
     expect(lengthA == lengthB).to eq(true)
   end
 
+  it "should be equal when lengthA is 500cm and lengthB is 5m" do
+
+    lengthA = Length.new 500, "cm"
+    lengthB = Length.new 5, "m"
+
+    expect(lengthA == lengthB).to eq(true)
+  end
+
+  it "should be equal when lengthA is 50000cm and lengthB is 5km" do
+
+    lengthA = Length.new 50000, "cm"
+    lengthB = Length.new 5, "km"
+
+    expect(lengthA == lengthB).to eq(true)
+  end
+
 end
