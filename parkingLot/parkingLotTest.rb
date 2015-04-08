@@ -2,7 +2,7 @@ require_relative('../parkingLot/parking_lot')
 require_relative('../parkingLot/car')
 
 describe "parking lot system" do
-  it "should store a car" do
+  it "should store a car and pick it" do
     car = Car.new
     parking_lot = ParkingLot.new
 
@@ -11,7 +11,7 @@ describe "parking lot system" do
     expect(parking_lot.pick(car_index)).to eq(car)
   end
 
-  it "should store more than one car" do
+  it "should store more than one car and pick them" do
     car = Car.new
     another_car = Car.new
     parking_lot = ParkingLot.new
@@ -24,14 +24,57 @@ describe "parking lot system" do
 
   end
 
-  it "cannot store a car when packing lot is full" do
+  it "cannot store a car when parking lot is full" do
     parking_lot = ParkingLot.new 2
-    carA = Car.new
-    carB = Car.new
-    carC = Car.new
 
-    parking_lot.store(carA)
-    parking_lot.store(carB)
-    expect(parking_lot.store(carC)).to eq(false)
+    parking_lot.store(Car.new)
+    parking_lot.store(Car.new)
+    expect(parking_lot.store(Car.new)).to eq(false)
+  end
+
+  it "should store a car from parking boy and get it from parking boy" do
+    parking_lot = ParkingLot.new
+    parking_boy = ParkingBoy.new parking_lot
+    car = Car.new
+    ticket = parking_boy.store(car)
+    expect(parking_boy.pick(ticket)).to eq(car)
+  end
+
+  it "should store a car from parking boy and get it from parking lot" do
+    parking_lot = ParkingLot.new
+    parking_boy = ParkingBoy.new parking_lot
+    car = Car.new
+    ticket = parking_boy.store(car)
+    expect(parking_lot.pick(ticket)).to eq(car)
+  end
+
+  it "should store a car into parking lot and get from parking boy" do
+    parking_lot = ParkingLot.new
+    parking_boy = ParkingBoy.new parking_lot
+    car = Car.new
+    ticket = parking_lot.store(car)
+    expect(parking_boy.pick(ticket)).to eq(car)
+  end
+
+  it "should store a car from parking boy and get it from one of the parking lots" do
+    parking_lots = [ParkingLot.new, ParkingLot.new]
+    parking_boy = ParkingBoy.new parking_lots
+    car = Car.new
+
+    ticket =
+  end
+
+end
+
+class ParkingBoy
+  def initialize parking_lot
+    @parkingLot = parking_lot
+  end
+  def store car
+    @parkingLot.store(car)
+  end
+
+  def pick ticket
+    @parkingLot.pick(ticket)
   end
 end

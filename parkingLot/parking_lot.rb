@@ -1,11 +1,11 @@
 class ParkingLot
-  def initialize num = 10
+  def initialize capacity = 10
     @storage = []
-    @max_space_num = num
+    @capacity = capacity
   end
 
   def store car
-    if @storage.length >= @max_space_num
+    if @storage.length >= @capacity
       return false
     end
     @storage.push car
