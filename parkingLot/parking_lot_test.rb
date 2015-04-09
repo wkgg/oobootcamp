@@ -11,7 +11,7 @@ describe "parking lot system" do
     expect(parking_lot.pick(car.to_s)).to eq(car)
   end
 
-  it "cannot pick car when packing lot has no cars" do
+  it "cannot pick the car when it not store to parking lot" do
 
     parking_lot = ParkingLot.new
 
