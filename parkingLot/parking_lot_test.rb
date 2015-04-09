@@ -1,45 +1,88 @@
-require_relative 'car'
-require_relative 'parking_lot'
+require_relative 'common'
 
 describe "parking lot system" do
   it "should store a car" do
 
-    parking_lot = ParkingLot.new(1)
+    parking_lot = ParkingLot.new
 
     car = Car.new
 
-    expect(parking_lot.pick(parking_lot.store(car))).to eq(car)
+    expect(parking_lot.store(car)).to eq(ParkingLot::STORE_SUCCEED)
+    expect(parking_lot.pick(car.to_s)).to eq(car)
   end
 
-  it "should cannot pick car when packing lot has no cars" do
+  it "cannot pick car when packing lot has no cars" do
 
-    parking_lot = ParkingLot.new(1)
+    parking_lot = ParkingLot.new
 
     expect(parking_lot.pick(0)).to eq(ParkingLot::PICK_FAILED)
   end
 
   it "should pick same car when store a car" do
 
-    parking_lot = ParkingLot.new(1)
+    parking_lot = ParkingLot.new
 
-    carA = Car.new('201504081344')
+    car = Car.new
 
-    pickedCar = parking_lot.pick(parking_lot.store(carA))
+    parking_lot.store(car)
 
-    expect(carA.same?(pickedCar)).to eq(true)
+    pickedCar = parking_lot.pick(car.to_s)
+
+    expect(car.same?(pickedCar)).to eq(true)
   end
 
-  it "should cannot store more than two cars when packing lot has 2 max space" do
+  it "cannot store more than two cars when packing lot has 2 max space" do
 
     parking_lot = ParkingLot.new(2)
 
-    carA = Car.new
-    carB = Car.new
+    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
+    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
+    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_FAILED)
+  end
 
-    carC = Car.new
+  it "cannot pick the car twice" do
 
-    expect(parking_lot.store(carA)).to eq(0)
-    expect(parking_lot.store(carB)).to eq(1)
-    expect(parking_lot.store(carC)).to eq(ParkingLot::STORE_FAILED)
+    parking_lot = ParkingLot.new
+    car = Car.new
+
+    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
+
+    expect(car.same?(parking_lot.pick(car.to_s))).to eq(true)
+
+    expect(parking_lot.canPick?(car.to_s)).to eq(false)
+  end
+
+  it "should parking a car by parking boy" do
+
+    car = Car.new
+    parking_boy = ParkingBoy.new
+
+    expect(parking_boy.store(car)).to eq(ParkingBoy::STORE_SUCCEED)
+
+    picked_car = parking_boy.pick(car.to_s);
+
+    expect(car.same?(picked_car)).to eq(true)
+  end
+
+  it "should can pick the car who parked by parking boy from one of the parking lots" do
+    parking_lots = [
+        ParkingLot.new,
+        ParkingLot.new,
+        ParkingLot.new,
+    ]
+    parking_boy = ParkingBoy.new(parking_lots)
+    car = Car.new
+
+    expect(parking_boy.store(car)).to eq(ParkingBoy::STORE_SUCCEED)
+
+    picked_car = nil
+    parking_lots.each do |parking_lot|
+      if parking_lot.canPick?(car.to_s)
+        picked_car = parking_lot.pick(car.to_s)
+        break
+      end
+    end
+
+    expect(car.same?(picked_car)).to eq(true)
   end
 end
