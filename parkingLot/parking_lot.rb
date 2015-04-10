@@ -1,5 +1,7 @@
 class ParkingLot
-  def initialize capacity = 10
+  attr_accessor :space
+  def initialize name, capacity = 10
+    @name = name
     @storage = []
     @capacity = capacity
   end
@@ -9,6 +11,7 @@ class ParkingLot
       return false
     end
     @storage.push car
+    @space = @capacity - @storage.length
     @storage.index(car)
   end
 
