@@ -95,6 +95,7 @@ class ParkingBoy
     end
 
     @parking_lots = parking_lots
+    @store_adapter = DefaultParkingLotStoreAdapter.new
   end
 
   def set_store_adapter(store_adapter)
@@ -102,21 +103,7 @@ class ParkingBoy
   end
 
   def store(car)
-
-    if !@store_adapter.nil?
-      return @store_adapter.store(@parking_lots, car)
-    else
-      stored = false
-
-      @parking_lots.each do |item|
-        if item.store(car) == true
-          stored = true
-          break
-        end
-      end
-
-      return stored
-    end
+    return @store_adapter.store(@parking_lots, car)
   end
 
   def pick(car_id)
@@ -134,15 +121,29 @@ class ParkingBoy
   end
 end
 
+class DefaultParkingLotStoreAdapter
+  def store(packing_lots, car)
+
+    stored = false
+
+    packing_lots.each do |item|
+      if item.store(car) == true
+        stored = true
+        break
+      end
+    end
+
+    return stored
+  end
+end
+
 class ParkToTheMostFreeSpaceParkingLotStoreAdapter
   def store(packing_lots, car)
 
     parkingLot = nil
 
     packing_lots.each do |item|
-      if parkingLot.nil?
-        parkingLot = item
-      elsif item.free_space_count > parkingLot.free_space_count
+      if parkingLot.nil? || item.free_space_count > parkingLot.free_space_count
         parkingLot = item
       end
     end
