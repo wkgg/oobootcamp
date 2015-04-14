@@ -1,22 +1,14 @@
 class Car
-
-  attr_accessor :car_id
-
   def initialize (car_id = nil)
-
-    if car_id.nil?
-      car_id = Time.now.to_i
-    end
-
-    self.car_id = car_id
+    @car_id = car_id.nil? ? Time.now.to_i : car_id
   end
 
   def same? (car)
-    return self.car_id == car.to_s
+    return @car_id == car.to_s
   end
 
   def to_s
-    return self.car_id
+    return @car_id
   end
 end
 
@@ -34,8 +26,6 @@ class ParkingLot
       return false
     else
       @parking_space.push(car)
-      @car_count += 1
-
       return true
     end
   end
@@ -43,12 +33,11 @@ class ParkingLot
   def pick car_id
 
     carIndex = self.findCarIndex(car_id)
+
     if carIndex < 0
       return false
     else
-      @car_count -= 1
       picked_car = @parking_space[carIndex]
-
       @parking_space.delete_at(carIndex)
 
       return picked_car
@@ -65,7 +54,7 @@ class ParkingLot
   end
 
   def free_space_count
-    return @max_space_num - @car_count
+    return @max_space_num - @parking_space.length
   end
 
   def findCarIndex car_id
