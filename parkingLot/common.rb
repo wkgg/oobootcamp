@@ -23,10 +23,6 @@ end
 
 class ParkingLot
 
-  STORE_FAILED = false
-  STORE_SUCCEED = true
-  PICK_FAILED = false
-
   def initialize (max_space_num = 10)
     @max_space_num = max_space_num
     @car_count = 0
@@ -34,13 +30,13 @@ class ParkingLot
   end
 
   def store car
-    if !self.canStore?
-      return STORE_FAILED
+    if !self.can_store?
+      return false
     else
       @parking_space.push(car)
       @car_count += 1
 
-      return STORE_SUCCEED
+      return true
     end
   end
 
@@ -48,7 +44,7 @@ class ParkingLot
 
     carIndex = self.findCarIndex(car_id)
     if carIndex < 0
-      return PICK_FAILED
+      return false
     else
       @car_count -= 1
       picked_car = @parking_space[carIndex]
@@ -59,13 +55,17 @@ class ParkingLot
     end;
   end
 
-  def canStore?
+  def can_store?
     return @parking_space.length < @max_space_num
   end
 
-  def canPick? car_id
+  def can_pick? car_id
 
     return self.findCarIndex(car_id) >= 0
+  end
+
+  def free_space_count
+    return @max_space_num - @car_count
   end
 
   def findCarIndex car_id
@@ -84,10 +84,6 @@ end
 
 class ParkingBoy
 
-  STORE_FAILED = false
-  STORE_SUCCEED = true
-  PICK_FAILED = false
-
   def initialize(parking_lots = [])
 
     if parking_lots.length <= 0
@@ -101,31 +97,56 @@ class ParkingBoy
     @parking_lots = parking_lots
   end
 
+  def set_store_adapter(store_adapter)
+    @store_adapter = store_adapter
+  end
+
   def store(car)
 
-    stored = ParkingBoy::STORE_FAILED
+    if !@store_adapter.nil?
+      return @store_adapter.store(@parking_lots, car)
+    else
+      stored = false
 
-    @parking_lots.each do |item|
-      if item.store(car) == ParkingLot::STORE_SUCCEED
-        stored = ParkingBoy::STORE_SUCCEED
-        break
+      @parking_lots.each do |item|
+        if item.store(car) == true
+          stored = true
+          break
+        end
       end
-    end
 
-    return stored
+      return stored
+    end
   end
 
   def pick(car_id)
 
-    picked_car = ParkingBoy::PICK_FAILED
+    picked_car = false
 
     @parking_lots.each do |item|
-      if item.canPick?(car_id)
+      if item.can_pick?(car_id)
         picked_car = item.pick(car_id)
         break
       end
     end
 
     return picked_car
+  end
+end
+
+class ParkToTheMostFreeSpaceParkingLotStoreAdapter
+  def store(packing_lots, car)
+
+    parkingLot = nil
+
+    packing_lots.each do |item|
+      if parkingLot.nil?
+        parkingLot = item
+      elsif item.free_space_count > parkingLot.free_space_count
+        parkingLot = item
+      end
+    end
+
+    return parkingLot.store(car)
   end
 end

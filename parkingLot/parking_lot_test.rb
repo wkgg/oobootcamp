@@ -7,15 +7,15 @@ describe "parking lot system" do
 
     car = Car.new
 
-    expect(parking_lot.store(car)).to eq(ParkingLot::STORE_SUCCEED)
+    expect(parking_lot.store(car)).to eq(true)
     expect(parking_lot.pick(car.to_s)).to eq(car)
   end
 
-  it "cannot pick the car when it not store to parking lot" do
+  it "cannot pick the car when not store to parking lot" do
 
     parking_lot = ParkingLot.new
 
-    expect(parking_lot.pick(0)).to eq(ParkingLot::PICK_FAILED)
+    expect(parking_lot.pick(0)).to eq(false)
   end
 
   it "should pick same car when store a car" do
@@ -35,9 +35,10 @@ describe "parking lot system" do
 
     parking_lot = ParkingLot.new(2)
 
-    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
-    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
-    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_FAILED)
+    expect(parking_lot.store(Car.new)).to eq(true)
+    expect(parking_lot.store(Car.new)).to eq(true)
+
+    expect(parking_lot.store(Car.new)).to eq(false)
   end
 
   it "cannot pick the car twice" do
@@ -45,11 +46,10 @@ describe "parking lot system" do
     parking_lot = ParkingLot.new
     car = Car.new
 
-    expect(parking_lot.store(Car.new)).to eq(ParkingLot::STORE_SUCCEED)
-
+    expect(parking_lot.store(Car.new)).to eq(true)
     expect(car.same?(parking_lot.pick(car.to_s))).to eq(true)
 
-    expect(parking_lot.canPick?(car.to_s)).to eq(false)
+    expect(parking_lot.can_pick?(car.to_s)).to eq(false)
   end
 
   it "should parking a car by parking boy" do
@@ -57,8 +57,7 @@ describe "parking lot system" do
     car = Car.new
     parking_boy = ParkingBoy.new
 
-    expect(parking_boy.store(car)).to eq(ParkingBoy::STORE_SUCCEED)
-
+    parking_boy.store(car)
     picked_car = parking_boy.pick(car.to_s);
 
     expect(car.same?(picked_car)).to eq(true)
@@ -68,21 +67,38 @@ describe "parking lot system" do
     parking_lots = [
         ParkingLot.new,
         ParkingLot.new,
-        ParkingLot.new,
     ]
     parking_boy = ParkingBoy.new(parking_lots)
     car = Car.new
 
-    expect(parking_boy.store(car)).to eq(ParkingBoy::STORE_SUCCEED)
+    parking_boy.store(car)
 
     picked_car = nil
     parking_lots.each do |parking_lot|
-      if parking_lot.canPick?(car.to_s)
+      if parking_lot.can_pick?(car.to_s)
         picked_car = parking_lot.pick(car.to_s)
         break
       end
     end
 
     expect(car.same?(picked_car)).to eq(true)
+  end
+
+  it "should can parking the car to the one of the most free space of two parking lots by smart parking boy" do
+
+    parkingLotFree10Space = ParkingLot.new(10)
+    parkingLotFree5Space = ParkingLot.new(5)
+
+    smarty_parking_boy = ParkingBoy.new([parkingLotFree10Space, parkingLotFree5Space])
+    car = Car.new
+
+    smarty_parking_boy.set_store_adapter(ParkToTheMostFreeSpaceParkingLotStoreAdapter.new)
+    smarty_parking_boy.store(car)
+
+    picked_car = parkingLotFree10Space.pick(car.to_s)
+    expect(car.same?(picked_car)).to eq(true)
+
+    picked_car = parkingLotFree5Space.pick(car.to_s)
+    expect(car.same?(picked_car)).to eq(false)
   end
 end
