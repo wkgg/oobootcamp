@@ -1,8 +1,6 @@
 require_relative('../parkingLot/parking_lot')
 require_relative('../parkingLot/car')
 require_relative('../parkingLot/parking_boy')
-require_relative('../parkingLot/smarty_parking_boy')
-require_relative('../parkingLot/super_parking_boy')
 require('pry')
 
 describe "parking lot system" do
@@ -38,7 +36,7 @@ describe "parking lot system" do
 
   it "should store a car from parking boy and get it from parking boy" do
     parking_lot = ParkingLot.new 1
-    parking_boy = ParkingBoy.new [parking_lot]
+    parking_boy = ParkingBoy.new [parking_lot], NormalAdapter.new
     car = Car.new
     ticket = parking_boy.store(car)
     expect(parking_boy.pick(ticket)).to eq(car)
@@ -46,7 +44,7 @@ describe "parking lot system" do
 
   it "should store a car from parking boy and get it from parking lot" do
     parking_lot = ParkingLot.new 1
-    parking_boy = ParkingBoy.new [parking_lot]
+    parking_boy = ParkingBoy.new [parking_lot], NormalAdapter.new
     car = Car.new
     ticket = parking_boy.store(car)
     expect(parking_lot.pick(ticket)).to eq(car)
@@ -54,7 +52,7 @@ describe "parking lot system" do
 
   it "should store a car into parking lot and get from parking boy" do
     parking_lot = ParkingLot.new 1
-    parking_boy = ParkingBoy.new [parking_lot]
+    parking_boy = ParkingBoy.new [parking_lot], NormalAdapter
     car = Car.new
     ticket = parking_lot.store(car)
     expect(parking_boy.pick(ticket)).to eq(car)
@@ -64,7 +62,7 @@ describe "parking lot system" do
     parking_lot = ParkingLot.new 1
     another_parking_lot = ParkingLot.new 2
     parking_lots = [parking_lot, another_parking_lot]
-    parking_boy = ParkingBoy.new parking_lots
+    parking_boy = ParkingBoy.new parking_lots, NormalAdapter.new
     car = Car.new
 
     ticket = parking_boy.store car
@@ -77,7 +75,7 @@ describe "parking lot system" do
     parking_lot_B = ParkingLot.new 6, 2
     parking_lot_A.store(Car.new)
 
-    smarty_parking_boy = SmartyParkingBoy.new [parking_lot_A, parking_lot_B]
+    smarty_parking_boy = ParkingBoy.new [parking_lot_A, parking_lot_B], SmartyAdapter.new
     car = Car.new
 
     ticket = smarty_parking_boy.store car
@@ -91,7 +89,7 @@ describe "parking lot system" do
     parking_lot_A.store(Car.new)
     parking_lot_B.store(Car.new)
 
-    super_parking_boy = SuperParkingBoy.new [parking_lot_A, parking_lot_B]
+    super_parking_boy = ParkingBoy.new [parking_lot_A, parking_lot_B], SuperAdapter.new
     car = Car.new
 
     ticket = super_parking_boy.store car
