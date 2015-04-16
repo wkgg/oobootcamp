@@ -97,8 +97,51 @@ describe "parking lot system" do
 
     picked_car = parkingLotFree10Space.pick(car.to_s)
     expect(car.same?(picked_car)).to eq(true)
+  end
 
-    picked_car = parkingLotFree5Space.pick(car.to_s)
-    expect(car.same?(picked_car)).to eq(false)
+  it "should can parking the car to the one of the most free space rate of two parking lots by super parking boy" do
+
+    parkingLotWithMoreFreeSpaceRate = ParkingLot.new(20)
+    parkingLotWithLessFreeSpaceRate = ParkingLot.new(9)
+
+    17.times do
+      parkingLotWithMoreFreeSpaceRate.store(Car.new)
+    end
+
+    6.times do
+      parkingLotWithLessFreeSpaceRate.store(Car.new)
+    end
+
+    super_parking_boy = ParkingBoy.new([parkingLotWithMoreFreeSpaceRate, parkingLotWithLessFreeSpaceRate])
+    car = Car.new
+
+    super_parking_boy.set_store_adapter(ParkToTheMostFreeSpaceRateParkingLotStoreAdapter.new)
+    super_parking_boy.store(car)
+
+    picked_car = parkingLotWithMoreFreeSpaceRate.pick(car.to_s)
+    expect(car.same?(picked_car)).to eq(true)
+  end
+
+  it "should can parking the car to the one of the most free space rate of two parking lots by super parking boy for different parking lots order in super parking boy" do
+
+    parkingLotWithMoreFreeSpaceRate = ParkingLot.new(20)
+    parkingLotWithLessFreeSpaceRate = ParkingLot.new(9)
+
+    17.times do
+      parkingLotWithMoreFreeSpaceRate.store(Car.new)
+    end
+
+    6.times do
+      parkingLotWithLessFreeSpaceRate.store(Car.new)
+    end
+
+    super_parking_boy = ParkingBoy.new([parkingLotWithLessFreeSpaceRate, parkingLotWithMoreFreeSpaceRate])
+    car = Car.new
+
+    super_parking_boy.set_store_adapter(ParkToTheMostFreeSpaceRateParkingLotStoreAdapter.new)
+    super_parking_boy.store(car)
+
+    picked_car = parkingLotWithMoreFreeSpaceRate.pick(car.to_s)
+    expect(car.same?(picked_car)).to eq(true)
   end
 end

@@ -1,6 +1,12 @@
 class Car
+  
   def initialize (car_id = nil)
-    @car_id = car_id.nil? ? Time.now.to_i : car_id
+
+    if car_id.nil?
+      @car_id = Time.now.to_i
+    end
+
+    !car_id = car_id
   end
 
   def same? (car)
@@ -17,7 +23,6 @@ class ParkingLot
 
   def initialize (max_space_num = 10)
     @max_space_num = max_space_num
-    @car_count = 0
     @parking_space = []
   end
 
@@ -26,6 +31,7 @@ class ParkingLot
       return false
     else
       @parking_space.push(car)
+
       return true
     end
   end
@@ -33,7 +39,6 @@ class ParkingLot
   def pick car_id
 
     carIndex = self.findCarIndex(car_id)
-
     if carIndex < 0
       return false
     else
@@ -55,6 +60,10 @@ class ParkingLot
 
   def free_space_count
     return @max_space_num - @parking_space.length
+  end
+
+  def free_space_rate
+    return self.free_space_count.to_f / @max_space_num.to_f
   end
 
   def findCarIndex car_id
@@ -111,28 +120,45 @@ class ParkingBoy
 end
 
 class DefaultParkingLotStoreAdapter
-  def store(packing_lots, car)
+  def store(parking_lots, car)
+    parkingLot = nil
 
-    stored = false
-
-    packing_lots.each do |item|
-      if item.store(car) == true
-        stored = true
+    parking_lots.each do |item|
+      if item.can_store?
+        parkingLot = item
         break
       end
     end
 
-    return stored
+    return parkingLot.store(car)
   end
 end
 
 class ParkToTheMostFreeSpaceParkingLotStoreAdapter
-  def store(packing_lots, car)
+  def store(parking_lots, car)
 
     parkingLot = nil
 
-    packing_lots.each do |item|
-      if parkingLot.nil? || item.free_space_count > parkingLot.free_space_count
+    parking_lots.each do |item|
+      if parkingLot.nil?
+        parkingLot = item
+      elsif item.free_space_count > parkingLot.free_space_count
+        parkingLot = item
+      end
+    end
+
+    return parkingLot.store(car)
+  end
+end
+
+class ParkToTheMostFreeSpaceRateParkingLotStoreAdapter
+  def store(parking_lots, car)
+    parkingLot = nil
+
+    parking_lots.each do |item|
+      if parkingLot.nil?
+        parkingLot = item
+      elsif item.free_space_rate > parkingLot.free_space_rate
         parkingLot = item
       end
     end
